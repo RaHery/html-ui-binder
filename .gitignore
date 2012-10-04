@@ -4,3 +4,9 @@
 *.jar
 *.war
 *.ear
+*.classpath*
+*.project
+\.gwt/**
+\.settings/**
+*.launch
+src/main/gwt-unitCache/**
