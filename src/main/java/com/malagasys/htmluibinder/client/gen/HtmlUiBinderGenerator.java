@@ -1,8 +1,8 @@
 package com.malagasys.htmluibinder.client.gen;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
@@ -10,17 +10,17 @@ import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JPackage;
+import com.google.gwt.core.ext.typeinfo.JParameterizedType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
-import com.google.gwt.dev.resource.Resource;
-import com.google.gwt.dev.resource.ResourceOracle;
-import com.google.gwt.dev.util.Util;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import com.malagasys.htmluibinder.client.HtmlUiTemplate;
+import com.malagasys.htmluibinder.client.HtmlUiBinder;
 
 public class HtmlUiBinderGenerator extends Generator {
   private final static String BINDER_SUFFIX = "_HtmlUiBinder";
-  private final static String TEMPLATE_SUFFIX = ".html";
 
   @Override
   public String generate(TreeLogger logger, GeneratorContext context, String typeName)
@@ -35,13 +35,38 @@ public class HtmlUiBinderGenerator extends Generator {
       return null;
     }
 
-    logger.log(Type.INFO, "Generating HtmlBinder for type `" + typeName + "'" + " Context="
-        + context);
     // Get a writer to the output class.
     SourceWriter sourceWriter = getSourceWriter(logger, context, requestedType);
 
     // Source writer is null if the file has already been generated.
     if (sourceWriter != null) {
+      logger.log(Type.INFO, "Generating HtmlBinder for type `" + typeName + "'" + " Context="
+          + context);
+
+      PartGenerator[] generators = new PartGenerator[] {
+          new SafeHtmlTemplateGenerator(context, requestedType, logger, sourceWriter),
+          new WidgetFieldsGenerator(context, requestedType, logger, sourceWriter),
+      };
+      
+      //The generate methods
+      for (PartGenerator g : generators) {
+        g.generateInnerTypes(sourceWriter);
+      }
+
+      //Generate fields first
+      for (PartGenerator g : generators) {
+        g.generateFields(sourceWriter);
+      }
+      
+      //Generate methods
+      for (PartGenerator g : generators) {
+        g.generateMethods(sourceWriter);
+      }
+      
+      //Finally, generate the createAndBindHtml()
+      writeCreateAndBindUiImpl(logger, sourceWriter, requestedType);
+      
+      //Done. Commit!
       sourceWriter.commit(logger);
     }
 
@@ -67,84 +92,42 @@ public class HtmlUiBinderGenerator extends Generator {
     ClassSourceFileComposerFactory composerFactory =
         new ClassSourceFileComposerFactory(packageName, getBinderSimpleName(requestedType));
 
-    // String[] imports =
-    // new String[] {
-    // getProxySupertype().getCanonicalName(), getStreamWriterClass().getCanonicalName(),
-    // SerializationStreamWriter.class.getCanonicalName(), GWT.class.getCanonicalName(),
-    // ResponseReader.class.getCanonicalName(),
-    // SerializationException.class.getCanonicalName(), RpcToken.class.getCanonicalName(),
-    // RpcTokenException.class.getCanonicalName(), Impl.class.getCanonicalName(),
-    // RpcStatsContext.class.getCanonicalName()};
-    // for (String imp : imports) {
-    // composerFactory.addImport(imp);
-    // }
+    //Add imports
+    String[] imports = new String[] {
+        SafeHtmlTemplates.class.getName(),
+        SafeHtmlTemplates.class.getName() + ".Template",
+        SafeHtml.class.getName(),
+        HtmlUiBinder.class.getName(),
+        HTMLPanel.class.getName(),
+        GWT.class.getName(),
+    };
+    for (String imp : imports) {
+      composerFactory.addImport(imp);
+    }
     composerFactory.addImplementedInterface(requestedType.getQualifiedSourceName());
 
     return composerFactory.createSourceWriter(ctx, printWriter);
   }
 
-  private void writeSafeHtmlTemplate(TreeLogger logger, SourceWriter writer, JClassType requestedType, 
-      ResourceOracle resourceOracle) throws UnableToCompleteException {
-    String templateFile = deduceTemplateFile(logger, requestedType);
-    String templateContent = readTemplateFileContent(logger, resourceOracle, templateFile);
-    
+  private void writeCreateAndBindUiImpl(TreeLogger logger, SourceWriter writer, JClassType requestedType) {
+    writer.println();
     writer.indent();
-    writer.println("interface Template extends SafeHtmlTemplates{");
-    writer.indentln("@Template(\"" + templateContent + "\")" );
-    writer.println("SafeHtml html();");
+    JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
+    JClassType[] typeArgs = requestedItf.getTypeArgs();
+    writer.println("public %s createAndBindHtml(%s container) {", typeArgs[0].getQualifiedSourceName(), 
+        typeArgs[1].getQualifiedBinaryName());
+    writer.indent();
+
+    //Create the htmlpanel containing the result
+    writer.println("Template t = GWT.create(Template.class);"); 
+    writer.println("HTMLPanel p = new HTMLPanel(t.html());");
+    
+    //Call the method generating the fields
+    writer.println("buildWidgets(container, p);");
+    writer.println("return p;");
+    
     writer.outdent();
     writer.println("}");
     writer.outdent();
-  }
-  
-  private String readTemplateFileContent(TreeLogger logger, ResourceOracle resourceOracle, String templatePath) 
-  throws UnableToCompleteException {
-    Resource resource = resourceOracle.getResourceMap().get(templatePath);
-    if (null == resource) {
-      logger.log(Type.ERROR, "Unable to find resource: " + templatePath);
-    }
-
-    try {
-      String content = Util.readStreamAsString(resource.openContents());
-      return content;
-    } catch (IOException e) {
-      logger.log(Type.ERROR, "Unable to read template file: " + templatePath, e);
-      throw new UnableToCompleteException();
-    }
-  }
-
-  private String deduceTemplateFile(TreeLogger logger, JClassType interfaceType)
-      throws UnableToCompleteException {
-    String templateName = null;
-    HtmlUiTemplate annotation = interfaceType.getAnnotation(HtmlUiTemplate.class);
-    if (annotation == null) {
-      // if the interface is defined as a nested class, use the name of the
-      // enclosing type
-      if (interfaceType.getEnclosingType() != null) {
-        interfaceType = interfaceType.getEnclosingType();
-      }
-      return slashify(interfaceType.getQualifiedBinaryName()) + TEMPLATE_SUFFIX;
-    } else {
-      templateName = annotation.value();
-      if (!templateName.endsWith(TEMPLATE_SUFFIX)) {
-        logger.log(Type.ERROR, "Template file name must end with " + TEMPLATE_SUFFIX);
-      }
-
-      /*
-       * If the template file name (minus suffix) has no dots, make it relative to the binder's
-       * package, otherwise slashify the dots
-       */
-      String unsuffixed = templateName.substring(0, templateName.lastIndexOf(TEMPLATE_SUFFIX));
-      if (!unsuffixed.contains(".")) {
-        templateName = slashify(interfaceType.getPackage().getName()) + "/" + templateName;
-      } else {
-        templateName = slashify(unsuffixed) + TEMPLATE_SUFFIX;
-      }
-    }
-    return templateName;
-  }
-
-  private static String slashify(String s) {
-    return s.replace(".", "/").replace("$", ".");
   }
 }

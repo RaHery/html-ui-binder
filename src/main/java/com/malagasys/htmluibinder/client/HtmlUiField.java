@@ -1,17 +1,15 @@
 package com.malagasys.htmluibinder.client;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation indicating the template file to be used.
- * 
- * @author hermann
- */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface HtmlTemplate {
-  String template() default "String";
+@Target(ElementType.FIELD)
+public @interface HtmlUiField {
+  String id() default "";
+  boolean provided() default false;
 }
