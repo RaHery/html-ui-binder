@@ -29,7 +29,7 @@ class WidgetFieldsGenerator extends AbstractPartGenerator {
   public void generateMethods(SourceWriter srcWriter) throws UnableToCompleteException {
     //Get the type of the container.
     JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
-    JClassType containerType = requestedItf.getTypeArgs()[1];
+    JClassType containerType = requestedItf.getTypeArgs()[0];
     List<String> createdMethodNames = new ArrayList<String>();
     
     //Scan visible and annotated fields

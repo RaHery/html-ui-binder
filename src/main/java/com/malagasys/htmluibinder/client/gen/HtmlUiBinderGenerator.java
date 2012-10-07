@@ -15,6 +15,7 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.malagasys.htmluibinder.client.HtmlUiBinder;
@@ -100,6 +101,7 @@ public class HtmlUiBinderGenerator extends Generator {
         HtmlUiBinder.class.getName(),
         HTMLPanel.class.getName(),
         GWT.class.getName(),
+        Widget.class.getName(),
     };
     for (String imp : imports) {
       composerFactory.addImport(imp);
@@ -114,8 +116,7 @@ public class HtmlUiBinderGenerator extends Generator {
     writer.indent();
     JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
     JClassType[] typeArgs = requestedItf.getTypeArgs();
-    writer.println("public %s createAndBindHtml(%s container) {", typeArgs[0].getQualifiedSourceName(), 
-        typeArgs[1].getQualifiedBinaryName());
+    writer.println("public Widget createAndBindHtml(%s container) {", typeArgs[0].getQualifiedSourceName());
     writer.indent();
 
     //Create the htmlpanel containing the result

@@ -1,14 +1,13 @@
 package com.malagasys.htmluibinder.client;
 
+import com.google.gwt.user.client.ui.Widget;
+
 
 
 
 /**
- * Marker interface to identify HtmlBuilder.
- * 
- * This marker interface will trigger the custom GWT generator.
- * @author hermann
+ * Interface to help generate HtmlBuilder.
  */
-public interface HtmlUiBinder<O, T> {
-  O createAndBindHtml(T container);
+public interface HtmlUiBinder<T> {
+  Widget createAndBindHtml(T container);
 }

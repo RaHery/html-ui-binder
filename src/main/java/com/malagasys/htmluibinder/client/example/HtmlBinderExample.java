@@ -5,13 +5,12 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.malagasys.htmluibinder.client.HtmlUiBinder;
 import com.malagasys.htmluibinder.client.HtmlUiField;
 
 public class HtmlBinderExample extends Composite {
   
-  interface HtmlBinderExampleBinder extends HtmlUiBinder<Widget, HtmlBinderExample> {}
+  interface HtmlBinderExampleBinder extends HtmlUiBinder<HtmlBinderExample> {}
 
   @HtmlUiField
   TextBox login;
