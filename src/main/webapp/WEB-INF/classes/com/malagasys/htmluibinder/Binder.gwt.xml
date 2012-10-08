@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="binder" >
+    <inherits name="com.google.gwt.user.User" />
+
+    <source path="client" />
+    <source path="shared" />
+    <generate-with class="com.malagasys.htmluibinder.client.gen.HtmlUiBinderGenerator" >
+        <when-type-assignable class="com.malagasys.htmluibinder.client.HtmlUiBinder" />
+    </generate-with>
+</module>

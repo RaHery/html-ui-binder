@@ -69,7 +69,7 @@ class WidgetFieldsGenerator extends AbstractPartGenerator {
     }
     srcWriter.println("//Inject the field into the html panel.");
     //TODO : how to check that the id does exist in the html
-    String id = annotatedWith.id();
+    String id = annotatedWith.value();
     if (id.equals("")) {
       id = field.getName();
     }
