@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module rename-to='Binder'>
-  <!-- Inherit the core Web Toolkit stuff.                        -->
-  <inherits name='com.google.gwt.user.User' />
+<module rename-to="binder" >
+    <inherits name="com.google.gwt.user.User" />
 
-  <!-- Specify the app entry point class.                         -->
-  <entry-point class='com.malagasys.htmluibinder.client.Binder' />
-
-  <!-- Specify the paths for translatable code                    -->
-  <source path='client' />
-  <generate-with class="com.malagasys.htmluibinder.client.gen.HtmlUiBinderGenerator">
-    <when-type-assignable class="com.malagasys.htmluibinder.client.HtmlUiBinder" />
-  </generate-with>
+    <source path="client" />
+    <source path="shared" />
+    <generate-with class="com.malagasys.htmluibinder.client.gen.HtmlUiBinderGenerator" >
+        <when-type-assignable class="com.malagasys.htmluibinder.client.HtmlUiBinder" />
+    </generate-with>
 </module>

@@ -54,9 +54,6 @@ class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
     String templateFile = deduceTemplateFile(logger, requestedType);
     String templateContent = readTemplateFileContent(logger, resourceOracle, templateFile);
 
-    // normalize the templatecontent first
-    templateContent = replaceQuote(toSingleLine(templateContent));
-
     writer.indent();
     writer.println("interface Template extends SafeHtmlTemplates{");
     writer.indentln("@Template(\"" + templateContent + "\")");
@@ -86,15 +83,11 @@ class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
               + e.getMessage(), e);
       throw new UnableToCompleteException();
     }
-    
-    print(doc);
-    try {
-      String content = Util.readStreamAsString(resource.openContents());
-      return content;
-    } catch (IOException e) {
-      logger.log(Type.ERROR, "Unable to read template file: " + templatePath, e);
-      throw new UnableToCompleteException();
-    }
+
+    //Transform back to normalized html text the document.
+    StringWriter writer = new StringWriter();
+    printNode(doc.getFirstChild(), new PrintWriter(writer));
+    return writer.toString();
   }
 
   private void printNode(Node node, PrintWriter writer) {
@@ -155,12 +148,6 @@ class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
     }
   }
     
-  private void print(Document d) {
-    StringWriter writer = new StringWriter();
-    printNode(d.getFirstChild(), new PrintWriter(writer));
-    System.out.println(writer.toString());
-  }
-  
   private String deduceTemplateFile(TreeLogger logger, JClassType interfaceType)
       throws UnableToCompleteException {
     String templateName = null;
@@ -194,15 +181,5 @@ class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
 
   private static String slashify(String s) {
     return s.replace(".", "/").replace("$", ".");
-  }
-
-  private static String toSingleLine(String s) {
-    String result = s.replace(System.getProperty("line.separator"), "");
-    return result;
-  }
-
-  private static String replaceQuote(String s) {
-    String result = s.replace("\"", "'");
-    return result;
   }
 }
