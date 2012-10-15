@@ -11,17 +11,17 @@ public class SimplePanel extends Composite {
   interface Binder extends HtmlUiBinder<SimplePanel> {}
 
   //Explicit name of the field.
-  @HtmlUiField("userlogin_text")
+  @HtmlUiField("userlogin")
   TextBox userLogin;
   
-  @HtmlUiField("userpassword_text")
+  @HtmlUiField("userpassword")
   TextBox userPassword;    
 
   //Implicit ui field.
   @HtmlUiField
   Button simpleButton;          
               
-  @HtmlUiField("connexion_button")
+  @HtmlUiField("button_2")
   Button connexionButton;
   
   public SimplePanel() {

@@ -2,9 +2,11 @@ package com.malagasys.htmluibinder.client.gen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
+import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JField;
@@ -22,7 +24,7 @@ class WidgetFieldsGenerator implements PartGenerator {
 
   @Override
   public void generate(GeneratorContext generatorCtx, JClassType requestedType,
-      TreeLogger treeLogger, SourceWriter srcWriter) throws UnableToCompleteException {
+      TreeLogger treeLogger, SourceWriter srcWriter, Map<String, String> idsMap) throws UnableToCompleteException {
     //Get the type of the container.
     JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
     JClassType containerType = requestedItf.getTypeArgs()[0];
@@ -32,7 +34,8 @@ class WidgetFieldsGenerator implements PartGenerator {
     for (JField field : containerType.getFields()) {
       HtmlUiField htmlFieldAnnotation = field.getAnnotation(HtmlUiField.class);
       if (htmlFieldAnnotation != null && (field.isPublic() || field.isDefaultAccess() || field.isProtected())) {
-        String methodName = writeMethodToCreateField(srcWriter, field, htmlFieldAnnotation, containerType);
+        String methodName = writeMethodToCreateField(treeLogger, srcWriter, field, htmlFieldAnnotation, 
+            containerType, idsMap);
         createdMethodNames.add(methodName);
       }
     }
@@ -50,8 +53,8 @@ class WidgetFieldsGenerator implements PartGenerator {
     srcWriter.outdent();
   }
 
-  private String writeMethodToCreateField(SourceWriter srcWriter, JField field, HtmlUiField annotatedWith, 
-      JClassType containerType) {
+  private String writeMethodToCreateField(TreeLogger treeLogger, SourceWriter srcWriter, JField field, HtmlUiField annotatedWith, 
+      JClassType containerType, Map<String, String> idsMap) throws UnableToCompleteException {
     srcWriter.println();
     
     //This is assured to be unique : the field name is unique within the class.
@@ -64,15 +67,22 @@ class WidgetFieldsGenerator implements PartGenerator {
       srcWriter.println("container.%s = GWT.create(%s.class);", field.getName(), field.getType().getQualifiedSourceName());
     }
     srcWriter.println("//Inject the field into the html panel.");
-    //TODO : how to check that the id does exist in the html
-    String id = annotatedWith.value();
-    if (id.equals("")) {
-      id = field.getName();
+    
+    String htmlUiId = annotatedWith.value();
+    if (htmlUiId.equals("")) {
+      htmlUiId = field.getName();
     }
-    srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), id);
-    srcWriter.outdent();
-    srcWriter.println("}");
-    srcWriter.outdent();
+    
+    if (idsMap.containsKey(htmlUiId)) {
+      srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), idsMap.get(htmlUiId));
+      srcWriter.outdent();
+      srcWriter.println("}");
+      srcWriter.outdent();
+    } else {
+      treeLogger.log(Type.ERROR, "There is no `htmlui:id' tag with the value `" + htmlUiId + "' found in the html template file.");
+      throw new UnableToCompleteException();
+    }
+    
     return uniqueMethodName;
   }
 }

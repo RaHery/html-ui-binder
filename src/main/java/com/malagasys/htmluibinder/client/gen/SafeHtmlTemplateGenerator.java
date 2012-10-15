@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.CDATASection;
@@ -38,12 +39,16 @@ class SafeHtmlTemplateGenerator implements PartGenerator {
   }
 
   private final static String TEMPLATE_SUFFIX = ".html";
+  private final static String HTML_UI_ID_ATTRIBUTEA_NAME = "htmlui:id";
+
+  private int id_counter = 100;
   
   @Override
   public void generate(GeneratorContext generatorCtx, JClassType requestedType,
-      TreeLogger treeLogger, SourceWriter srcWriter) throws UnableToCompleteException {
+      TreeLogger treeLogger, SourceWriter srcWriter, Map<String, String> idsMap) throws UnableToCompleteException {
     String templateFile = deduceTemplateFile(treeLogger, requestedType);
-    String templateContent = readTemplateFileContent(treeLogger, generatorCtx.getResourcesOracle(), templateFile);
+    String templateContent = readTemplateFileContent(treeLogger, generatorCtx.getResourcesOracle(), 
+        templateFile, idsMap);
 
     srcWriter.indent();
     srcWriter.println("interface Template extends SafeHtmlTemplates{");
@@ -55,7 +60,7 @@ class SafeHtmlTemplateGenerator implements PartGenerator {
   }
 
   private String readTemplateFileContent(TreeLogger logger, ResourceOracle resourceOracle,
-      String templatePath) throws UnableToCompleteException {
+      String templatePath, Map<String, String> idsMap) throws UnableToCompleteException {
     Resource resource = resourceOracle.getResourceMap().get(templatePath);
     if (null == resource) {
       logger.log(Type.ERROR, "Unable to find resource: " + templatePath);
@@ -77,14 +82,14 @@ class SafeHtmlTemplateGenerator implements PartGenerator {
 
     //Transform back to normalized html text the document.
     StringWriter writer = new StringWriter();
-    printNode(doc.getFirstChild(), new PrintWriter(writer));
+    printNode(logger, doc.getFirstChild(), new PrintWriter(writer), idsMap);
     return writer.toString();
   }
 
-  private void printNode(Node node, PrintWriter writer) {
+  private void printNode(TreeLogger logger, Node node, PrintWriter writer, Map<String, String> idsMap) throws UnableToCompleteException {
     switch(node.getNodeType()) {
       case Node.ELEMENT_NODE:
-        printElement((Element) node, writer);
+        printElement(logger, (Element) node, writer, idsMap);
         break;
 
       case Node.TEXT_NODE:
@@ -112,25 +117,60 @@ class SafeHtmlTemplateGenerator implements PartGenerator {
     }
   }
     
-  private void printElement(Element elem, PrintWriter writer) {
+  private void printElement(TreeLogger logger, Element elem, PrintWriter writer, Map<String, String> idsMap) throws UnableToCompleteException {
+    /*
+     * While printing the content of the element into the writer, create a
+     * new `id' for element having an `htmlui:id' but without id.
+     */
+    
     //Start tag
     String nodeName = elem.getNodeName().toLowerCase();
     writer.printf("<%s", nodeName);
     
     //Print attributes
+    boolean containsHtmlUiId = false;
+    boolean containsId = false;
+    String htmluiId = null;
+    String id = null;
     NamedNodeMap attributes = elem.getAttributes();
     for(int i = 0; i < attributes.getLength(); ++i) {
       Node attr = attributes.item(i);
       String attrValue = attr.getNodeValue().replace("'", "&#39;");
       writer.printf(" %s='%s'", attr.getNodeName(), attrValue);
+      
+      //Capture htmlui:id attribute
+      if (attr.getNodeName().equals(HTML_UI_ID_ATTRIBUTEA_NAME)) {
+        if (containsHtmlUiId) {
+          logger.log(Type.ERROR, "Duplicate `htmlui:id' found in the tag `" + nodeName + "'");
+          throw new UnableToCompleteException();
+        }
+        containsHtmlUiId = true;
+        htmluiId = attrValue;
+      }
+      
+      //Capture id attribute
+      if (attr.getNodeName().equals("id")) {
+        containsId = true;
+        id = attrValue;
+      }
     }
+    
+    //If there htmlui:id attribute, add a mapping of htmlui:id ==> id
+    if (containsHtmlUiId) {
+      if (!containsId) {
+        id = "__html_id__" + id_counter++;
+      }
+      idsMap.put(htmluiId, id);
+    }
+
+    //Close the tag.
     writer.print(">");
     
     //Print children
     NodeList childNodes = elem.getChildNodes();
     if (childNodes != null) {
       for(int i = 0; i < childNodes.getLength(); ++i) {
-        printNode(childNodes.item(i), writer);
+        printNode(logger, childNodes.item(i), writer, idsMap);
       }
     }
 

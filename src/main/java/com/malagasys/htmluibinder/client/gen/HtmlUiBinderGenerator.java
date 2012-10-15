@@ -1,6 +1,7 @@
 package com.malagasys.htmluibinder.client.gen;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.ext.Generator;
@@ -14,6 +15,7 @@ import com.google.gwt.core.ext.typeinfo.JParameterizedType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.thirdparty.guava.common.collect.Maps;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
@@ -49,9 +51,10 @@ public class HtmlUiBinderGenerator extends Generator {
           new WidgetFieldsGenerator(),
       };
       
-      //The generate methods
+      //The generate method
+      Map<String, String> idsMap = Maps.newHashMap();
       for (PartGenerator g : generators) {
-        g.generate(context, requestedType, logger, sourceWriter);
+        g.generate(context, requestedType, logger, sourceWriter, idsMap);
       }
 
       //Finally, generate the createAndBindHtml()
