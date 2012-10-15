@@ -18,15 +18,11 @@ import com.malagasys.htmluibinder.client.HtmlUiField;
  * 
  * @author hermann
  */
-class WidgetFieldsGenerator extends AbstractPartGenerator {
-
-  protected WidgetFieldsGenerator(GeneratorContext generatorCtx, JClassType requestedType,
-      TreeLogger treeLogger, SourceWriter srcWriter) {
-    super(generatorCtx, requestedType, treeLogger, srcWriter);
-  }
+class WidgetFieldsGenerator implements PartGenerator {
 
   @Override
-  public void generateMethods(SourceWriter srcWriter) throws UnableToCompleteException {
+  public void generate(GeneratorContext generatorCtx, JClassType requestedType,
+      TreeLogger treeLogger, SourceWriter srcWriter) throws UnableToCompleteException {
     //Get the type of the container.
     JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
     JClassType containerType = requestedItf.getTypeArgs()[0];
@@ -53,7 +49,7 @@ class WidgetFieldsGenerator extends AbstractPartGenerator {
     srcWriter.println("}");
     srcWriter.outdent();
   }
-  
+
   private String writeMethodToCreateField(SourceWriter srcWriter, JField field, HtmlUiField annotatedWith, 
       JClassType containerType) {
     srcWriter.println();

@@ -45,25 +45,15 @@ public class HtmlUiBinderGenerator extends Generator {
           + context);
 
       PartGenerator[] generators = new PartGenerator[] {
-          new SafeHtmlTemplateGenerator(context, requestedType, logger, sourceWriter),
-          new WidgetFieldsGenerator(context, requestedType, logger, sourceWriter),
+          new SafeHtmlTemplateGenerator(),
+          new WidgetFieldsGenerator(),
       };
       
       //The generate methods
       for (PartGenerator g : generators) {
-        g.generateInnerTypes(sourceWriter);
+        g.generate(context, requestedType, logger, sourceWriter);
       }
 
-      //Generate fields first
-      for (PartGenerator g : generators) {
-        g.generateFields(sourceWriter);
-      }
-      
-      //Generate methods
-      for (PartGenerator g : generators) {
-        g.generateMethods(sourceWriter);
-      }
-      
       //Finally, generate the createAndBindHtml()
       writeCreateAndBindUiImpl(logger, sourceWriter, requestedType);
       

@@ -10,3 +10,4 @@
 \.settings/**
 *.launch
 src/main/gwt-unitCache/**
+target/**

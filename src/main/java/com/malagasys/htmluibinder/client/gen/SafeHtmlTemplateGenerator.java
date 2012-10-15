@@ -28,7 +28,7 @@ import com.google.gwt.uibinder.rebind.W3cDomHelper;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.malagasys.htmluibinder.client.HtmlUiTemplate;
 
-class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
+class SafeHtmlTemplateGenerator implements PartGenerator {
   private final static Set<String> NO_END_TAG;
   static {
     //from com/google/gxp/compiler/schema/html.xml
@@ -39,28 +39,19 @@ class SafeHtmlTemplateGenerator extends AbstractPartGenerator {
 
   private final static String TEMPLATE_SUFFIX = ".html";
   
-  SafeHtmlTemplateGenerator(GeneratorContext generatorCtx, JClassType requestedType,
-      TreeLogger treeLogger, SourceWriter srcWriter) {
-    super(generatorCtx, requestedType, treeLogger, srcWriter);
-  }
-
   @Override
-  public void generateInnerTypes(SourceWriter srcWriter) throws UnableToCompleteException {
-    writeSafeHtmlTemplate(treeLogger, this.srcWriter, requestedType, generatorCtx.getResourcesOracle());
-  }
+  public void generate(GeneratorContext generatorCtx, JClassType requestedType,
+      TreeLogger treeLogger, SourceWriter srcWriter) throws UnableToCompleteException {
+    String templateFile = deduceTemplateFile(treeLogger, requestedType);
+    String templateContent = readTemplateFileContent(treeLogger, generatorCtx.getResourcesOracle(), templateFile);
 
-  private void writeSafeHtmlTemplate(TreeLogger logger, SourceWriter writer,
-      JClassType requestedType, ResourceOracle resourceOracle) throws UnableToCompleteException {
-    String templateFile = deduceTemplateFile(logger, requestedType);
-    String templateContent = readTemplateFileContent(logger, resourceOracle, templateFile);
-
-    writer.indent();
-    writer.println("interface Template extends SafeHtmlTemplates{");
-    writer.indentln("@Template(\"" + templateContent + "\")");
-    writer.println("SafeHtml html();");
-    writer.outdent();
-    writer.println("}");
-    writer.outdent();
+    srcWriter.indent();
+    srcWriter.println("interface Template extends SafeHtmlTemplates{");
+    srcWriter.indentln("@Template(\"" + templateContent + "\")");
+    srcWriter.println("SafeHtml html();");
+    srcWriter.outdent();
+    srcWriter.println("}");
+    srcWriter.outdent();
   }
 
   private String readTemplateFileContent(TreeLogger logger, ResourceOracle resourceOracle,
