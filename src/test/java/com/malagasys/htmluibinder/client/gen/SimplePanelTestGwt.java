@@ -1,14 +1,8 @@
 package com.malagasys.htmluibinder.client.gen;
 
-import com.google.gwt.junit.client.GWTTestCase;
 
-public class SimplePanelTestGwt extends GWTTestCase {
+public class SimplePanelTestGwt extends AbstractBaseTest {
 
-  @Override
-  public String getModuleName() {
-    return "com.malagasys.htmluibinder.Binder";
-  }
-  
   public void testHappy() {
     SimplePanel p = new SimplePanel();
     assertNotNull(p.connexionButton);

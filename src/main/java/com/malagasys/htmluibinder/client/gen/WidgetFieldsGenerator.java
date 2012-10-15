@@ -2,45 +2,52 @@ package com.malagasys.htmluibinder.client.gen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.google.gwt.core.ext.GeneratorContext;
-import com.google.gwt.core.ext.TreeLogger;
+import org.w3c.dom.Element;
+
 import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JField;
 import com.google.gwt.core.ext.typeinfo.JParameterizedType;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.malagasys.htmluibinder.client.HtmlUiField;
 
 /**
- * For each, generate a method that create the field. At the end create a method
- * that assign each field to the builder target.
+ * For each field annotated with {@link HtmlUiField}, generate a method that create the field. 
+ * At the end create a method that assign each field to the builder target.
  * 
  * @author hermann
  */
 class WidgetFieldsGenerator implements PartGenerator {
 
   @Override
-  public void generate(GeneratorContext generatorCtx, JClassType requestedType,
-      TreeLogger treeLogger, SourceWriter srcWriter, Map<String, String> idsMap) throws UnableToCompleteException {
+  public void generate(HtmlUiGeneratorContext ctx) throws UnableToCompleteException {
+    SourceWriter srcWriter = ctx.getSourceWriter();
+    
     //Get the type of the container.
-    JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
+    JParameterizedType requestedItf = (JParameterizedType) ctx.getRequestedType().getImplementedInterfaces()[0];
     JClassType containerType = requestedItf.getTypeArgs()[0];
     List<String> createdMethodNames = new ArrayList<String>();
     
     //Scan visible and annotated fields
     for (JField field : containerType.getFields()) {
       HtmlUiField htmlFieldAnnotation = field.getAnnotation(HtmlUiField.class);
-      if (htmlFieldAnnotation != null && (field.isPublic() || field.isDefaultAccess() || field.isProtected())) {
-        String methodName = writeMethodToCreateField(treeLogger, srcWriter, field, htmlFieldAnnotation, 
-            containerType, idsMap);
+      if (htmlFieldAnnotation != null) {
+        if (field.isPrivate()) {
+          ctx.getTreeLogger().log(Type.ERROR, "Field `" + field.getName() + "' is annotated " +
+          		"with @HtmlUiField but is private.");
+          throw new UnableToCompleteException();
+        }
+        
+        String methodName = writeMethodToInitField(field, htmlFieldAnnotation, 
+            containerType, ctx);
         createdMethodNames.add(methodName);
       }
     }
     
-    //Then create a single method that calls all of the created method
+    //Then create a single method that calls all of the created methods
     srcWriter.println();
     srcWriter.indent();
     srcWriter.println("void buildWidgets(%s container, HTMLPanel htmlPanel) {", containerType.getName());
@@ -53,8 +60,9 @@ class WidgetFieldsGenerator implements PartGenerator {
     srcWriter.outdent();
   }
 
-  private String writeMethodToCreateField(TreeLogger treeLogger, SourceWriter srcWriter, JField field, HtmlUiField annotatedWith, 
-      JClassType containerType, Map<String, String> idsMap) throws UnableToCompleteException {
+  private String writeMethodToInitField(JField field, HtmlUiField annotatedWith, 
+      JClassType containerType, HtmlUiGeneratorContext context) throws UnableToCompleteException {
+    SourceWriter srcWriter = context.getSourceWriter();
     srcWriter.println();
     
     //This is assured to be unique : the field name is unique within the class.
@@ -73,13 +81,25 @@ class WidgetFieldsGenerator implements PartGenerator {
       htmlUiId = field.getName();
     }
     
-    if (idsMap.containsKey(htmlUiId)) {
-      srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), idsMap.get(htmlUiId));
+    if (context.getId(htmlUiId) != null) {
+      String id = context.getId(htmlUiId);
+      srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), id);
+      
+      //TODO : Transfer all of the attributes or only some attributes? 
+      Element element = context.getDocument().getElementById(id);
+      srcWriter.println("container.%s.addStyleName(\"%s\");", 
+          field.getName(), element.getAttribute("class"));
+      String style = element.getAttribute("style");
+      if (style != null && style.length() > 0) {
+        srcWriter.println("DOM.setElementProperty(container.%s.getElement(), \"%s\", \"%s\")",
+            field.getName(), "style", style);
+      }
+      
       srcWriter.outdent();
       srcWriter.println("}");
       srcWriter.outdent();
     } else {
-      treeLogger.log(Type.ERROR, "There is no `htmlui:id' tag with the value `" + htmlUiId + "' found in the html template file.");
+      context.getTreeLogger().log(Type.ERROR, "There is no `htmlui:id' tag with the value `" + htmlUiId + "' found in the html template file.");
       throw new UnableToCompleteException();
     }
     

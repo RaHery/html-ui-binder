@@ -8,6 +8,7 @@ public class GwtTestSuite extends GWTTestSuite {
   public static Test suite() {
     GWTTestSuite suite = new GWTTestSuite("`Html ui binder'");
     suite.addTestSuite(SimplePanelTestGwt.class);
+    suite.addTestSuite(PanelWidgetWithoutId.class);
     return suite;
   }
 }
