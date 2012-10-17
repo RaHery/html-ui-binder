@@ -10,7 +10,6 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JField;
 import com.google.gwt.core.ext.typeinfo.JParameterizedType;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.malagasys.htmluibinder.client.HtmlUiField;
 
@@ -83,26 +82,45 @@ class WidgetFieldsGenerator implements PartGenerator {
     
     if (context.getId(htmlUiId) != null) {
       String id = context.getId(htmlUiId);
+      
+      //Transfer 'class' and 'style' attributes
+      transferCssAttributes(srcWriter, id, field.getName());
+      
+      //Then replace the element.
       srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), id);
-      
-      //TODO : Transfer all of the attributes or only some attributes? 
-      Element element = context.getDocument().getElementById(id);
-      srcWriter.println("container.%s.addStyleName(\"%s\");", 
-          field.getName(), element.getAttribute("class"));
-      String style = element.getAttribute("style");
-      if (style != null && style.length() > 0) {
-        srcWriter.println("DOM.setElementProperty(container.%s.getElement(), \"%s\", \"%s\")",
-            field.getName(), "style", style);
-      }
-      
       srcWriter.outdent();
       srcWriter.println("}");
-      srcWriter.outdent();
     } else {
       context.getTreeLogger().log(Type.ERROR, "There is no `htmlui:id' tag with the value `" + htmlUiId + "' found in the html template file.");
       throw new UnableToCompleteException();
     }
     
     return uniqueMethodName;
+  }
+  
+  private void transferCssAttributes(SourceWriter srcWriter, String id, String fieldName) {
+    srcWriter.println("Element element = htmlPanel.getElementById(\"%s\");", id);
+    srcWriter.println("if (element != null) {");
+    srcWriter.indent();
+    
+    //Transfer the "class" attribute if exist.
+    srcWriter.println("if (element.hasAttribute(\"class\")) {");
+    srcWriter.indent();
+    srcWriter.println("String className = element.getClassName();");
+    srcWriter.println("container.%s.addStyleName(className);", fieldName);
+    srcWriter.outdent();
+    srcWriter.println("}");
+    srcWriter.println();
+    
+    //Transfer the "style" attribute if exist.
+    srcWriter.println("if (element.hasAttribute(\"style\")) {");
+    srcWriter.indent();
+    srcWriter.println("String style = DOM.getElementAttribute(element, \"style\");");
+    srcWriter.println("DOM.setElementAttribute(container.%s.getElement(), \"style\", style);", fieldName);
+    srcWriter.outdent();
+    srcWriter.println("}");
+    
+    srcWriter.outdent();
+    srcWriter.println("}");
   }
 }

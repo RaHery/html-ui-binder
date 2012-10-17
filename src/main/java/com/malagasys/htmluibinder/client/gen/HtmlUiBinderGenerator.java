@@ -22,6 +22,8 @@ import com.google.gwt.dev.util.Util;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.rebind.W3cDomHelper;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
@@ -105,6 +107,8 @@ public class HtmlUiBinderGenerator extends Generator {
         HTMLPanel.class.getName(),
         GWT.class.getName(),
         Widget.class.getName(),
+        Element.class.getName(),
+        DOM.class.getName(),
     };
     for (String imp : imports) {
       composerFactory.addImport(imp);
