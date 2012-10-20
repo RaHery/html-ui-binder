@@ -1,5 +1,6 @@
 package com.malagasys.htmluibinder.client.gen;
 
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -7,6 +8,7 @@ import org.w3c.dom.Document;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.typeinfo.JClassType;
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.google.gwt.thirdparty.guava.common.collect.Maps;
 import com.google.gwt.user.rebind.SourceWriter;
 
@@ -17,6 +19,7 @@ class HtmlUiGeneratorContext {
   private final TreeLogger treeLogger;
   private final SourceWriter srcWriter;
   private final Map<String, String> ids = Maps.newHashMap();
+  private final List<String> statements = Lists.newArrayList();
 
   HtmlUiGeneratorContext(Document document, GeneratorContext generatorCtx,
       JClassType requestedType, TreeLogger treeLogger, SourceWriter srcWriter) {
@@ -53,5 +56,15 @@ class HtmlUiGeneratorContext {
   
   String getId(String htmlUiId) {
     return ids.get(htmlUiId);
+  }
+  
+  void addStatement(String statement) {
+    statements.add(statement);
+  }
+  
+  void writeAllStatements(SourceWriter writer) {
+    for (String st:statements) {
+      writer.println(st);
+    }
   }
 }

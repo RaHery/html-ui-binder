@@ -39,9 +39,9 @@ class SafeHtmlTemplateGenerator implements PartGenerator {
     String templateContent = docWriter.toString();
     
     SourceWriter srcWriter = context.getSourceWriter();
-    srcWriter.indent();
     srcWriter.println("interface Template extends SafeHtmlTemplates{");
-    srcWriter.indentln("@Template(\"" + templateContent + "\")");
+    srcWriter.indent();
+    srcWriter.println("@Template(\"" + templateContent + "\")");
     srcWriter.println("SafeHtml html();");
     srcWriter.outdent();
     srcWriter.println("}");

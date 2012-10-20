@@ -60,6 +60,7 @@ public class HtmlUiBinderGenerator extends Generator {
       PartGenerator[] generators = new PartGenerator[] {
           new SafeHtmlTemplateGenerator(),
           new WidgetFieldsGenerator(),
+          new EventHandlerGenerator(),
       };
       
       //Do generation

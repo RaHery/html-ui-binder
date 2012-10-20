@@ -3,8 +3,6 @@ package com.malagasys.htmluibinder.client.gen;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.w3c.dom.Element;
-
 import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
@@ -73,7 +71,6 @@ class WidgetFieldsGenerator implements PartGenerator {
       srcWriter.println("//Create the field if need be.");
       srcWriter.println("container.%s = GWT.create(%s.class);", field.getName(), field.getType().getQualifiedSourceName());
     }
-    srcWriter.println("//Inject the field into the html panel.");
     
     String htmlUiId = annotatedWith.value();
     if (htmlUiId.equals("")) {
@@ -90,6 +87,7 @@ class WidgetFieldsGenerator implements PartGenerator {
       srcWriter.println("htmlPanel.addAndReplaceElement(container.%s, \"%s\");", field.getName(), id);
       srcWriter.outdent();
       srcWriter.println("}");
+      srcWriter.outdent();
     } else {
       context.getTreeLogger().log(Type.ERROR, "There is no `htmlui:id' tag with the value `" + htmlUiId + "' found in the html template file.");
       throw new UnableToCompleteException();
