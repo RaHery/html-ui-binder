@@ -62,9 +62,9 @@ class HtmlUiGeneratorContext {
     statements.add(statement);
   }
   
-  void writeAllStatements(SourceWriter writer) {
+  void writeAllStatements() {
     for (String st:statements) {
-      writer.println(st);
+      srcWriter.println(st);
     }
   }
 }

@@ -22,6 +22,7 @@ class WidgetFieldsGenerator implements PartGenerator {
   @Override
   public void generate(HtmlUiGeneratorContext ctx) throws UnableToCompleteException {
     SourceWriter srcWriter = ctx.getSourceWriter();
+    final String createMethodName = "__buildWidgets";
     
     //Get the type of the container.
     JParameterizedType requestedItf = (JParameterizedType) ctx.getRequestedType().getImplementedInterfaces()[0];
@@ -47,7 +48,7 @@ class WidgetFieldsGenerator implements PartGenerator {
     //Then create a single method that calls all of the created methods
     srcWriter.println();
     srcWriter.indent();
-    srcWriter.println("void buildWidgets(%s container, HTMLPanel htmlPanel) {", containerType.getName());
+    srcWriter.println("void %s(%s container, HTMLPanel htmlPanel) {", createMethodName, containerType.getName());
     srcWriter.indent();
     for (String methodName : createdMethodNames) {
       srcWriter.println("%s(container, htmlPanel);", methodName);
@@ -55,6 +56,10 @@ class WidgetFieldsGenerator implements PartGenerator {
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();
+    
+    //Add statement to call the method
+    ctx.addStatement(createMethodName + "(container, panel);");
+    
   }
 
   private String writeMethodToInitField(JField field, HtmlUiField annotatedWith, 

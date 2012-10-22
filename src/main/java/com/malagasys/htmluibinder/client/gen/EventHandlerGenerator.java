@@ -32,7 +32,7 @@ public class EventHandlerGenerator implements PartGenerator {
     
     JParameterizedType requestedItf = (JParameterizedType) context.getRequestedType().getImplementedInterfaces()[0];
     JClassType containerType = requestedItf.getTypeArgs()[0];
-    srcWriter.println("void __createEventHandlers(final %s panel) {", containerType.getName());
+    srcWriter.println("void __createEventHandlers(final %s container) {", containerType.getName());
     srcWriter.indent();
     
     JMethod[] methods = containerType.getMethods();
@@ -56,7 +56,7 @@ public class EventHandlerGenerator implements PartGenerator {
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();
-    context.addStatement("__createEventHandlers(panel);");
+    context.addStatement("__createEventHandlers(container);");
   }
   
   private void writeEventHandlerMethod(HtmlUiGeneratorContext context, String fieldName, JMethod targetMethod)
@@ -76,20 +76,20 @@ public class EventHandlerGenerator implements PartGenerator {
     //Now find the handler event type
     JClassType eventType = findEventType(logger, targetMethod, field);
     JMethod[] methods = findEventListenerMethod(logger, field, eventType);
-    writeEventHandlerImplementation(context, fieldName, targetMethod, methods[0], methods[1], eventType);
+    writeEventHandlerImplementation(context, field.getName(), targetMethod, methods[0], methods[1], eventType);
   }
 
   private void writeEventHandlerImplementation(HtmlUiGeneratorContext context, String fieldName, 
       JMethod targetMethod, JMethod addHandlerMethod, JMethod handlerMethod, JClassType eventType) throws UnableToCompleteException {
     SourceWriter srcWriter = context.getSourceWriter();
-    srcWriter.println("panel.%s.%s(new %s(){", fieldName, addHandlerMethod.getName(), 
+    srcWriter.println("container.%s.%s(new %s(){", fieldName, addHandlerMethod.getName(), 
         handlerMethod.getEnclosingType().getQualifiedSourceName());
     srcWriter.indent();
     //TODO in case of an event handler having multiple methods, add
     //empty implementation for the other methods.
     srcWriter.println("public void %s(%s event) {", handlerMethod.getName(), eventType.getQualifiedSourceName());
     srcWriter.indent();
-    srcWriter.println("panel.%s(event);", targetMethod.getName());
+    srcWriter.println("container.%s(event);", targetMethod.getName());
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();
@@ -105,7 +105,7 @@ public class EventHandlerGenerator implements PartGenerator {
     
     for (JMethod method : fieldType.getInheritableMethods()) {
       //Check method which name start with 'add...()' and having a single parameter
-      if (method.getName().startsWith("add") && method.isPublic()) {
+      if (method.getName().startsWith("add") && !method.isPrivate()) {
         JType[] parameterTypes = method.getParameterTypes();
         if (parameterTypes != null && parameterTypes.length == 1 
             && parameterTypes[0].isInterface() != null) {
@@ -138,7 +138,8 @@ public class EventHandlerGenerator implements PartGenerator {
     }
 
     if (methods == null) {
-      logger.log(Type.ERROR, "There is no eventhandler to handle event of type `" + eventType.getName() + "'");
+      logger.log(Type.ERROR, "There is no eventhandler to handle event of type `" + eventType.getName() + "'" +
+      		" that can be added to field `" + field.getName() + "(" + field.getType() + ")'");
       throw new UnableToCompleteException();
     }
 

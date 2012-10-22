@@ -14,7 +14,6 @@ import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JPackage;
-import com.google.gwt.core.ext.typeinfo.JParameterizedType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.dev.resource.Resource;
 import com.google.gwt.dev.resource.ResourceOracle;
@@ -61,6 +60,7 @@ public class HtmlUiBinderGenerator extends Generator {
           new SafeHtmlTemplateGenerator(),
           new WidgetFieldsGenerator(),
           new EventHandlerGenerator(),
+          new CreateAndBindUiGenerator(),
       };
       
       //Do generation
@@ -70,9 +70,6 @@ public class HtmlUiBinderGenerator extends Generator {
         g.generate(ctx);
       }
 
-      //Finally, generate the createAndBindHtml()
-      writeCreateAndBindUiImpl(logger, sourceWriter, requestedType);
-      
       //Done. Commit!
       sourceWriter.commit(logger);
     }
@@ -119,27 +116,6 @@ public class HtmlUiBinderGenerator extends Generator {
     return composerFactory.createSourceWriter(ctx, printWriter);
   }
 
-  private void writeCreateAndBindUiImpl(TreeLogger logger, SourceWriter writer, JClassType requestedType) {
-    writer.println();
-    writer.indent();
-    JParameterizedType requestedItf = (JParameterizedType) requestedType.getImplementedInterfaces()[0];
-    JClassType[] typeArgs = requestedItf.getTypeArgs();
-    writer.println("public Widget createAndBindHtml(%s container) {", typeArgs[0].getQualifiedSourceName());
-    writer.indent();
-
-    //Create the htmlpanel containing the result
-    writer.println("Template t = GWT.create(Template.class);"); 
-    writer.println("HTMLPanel p = new HTMLPanel(t.html());");
-    
-    //Call the method generating the fields
-    writer.println("buildWidgets(container, p);");
-    writer.println("return p;");
-    
-    writer.outdent();
-    writer.println("}");
-    writer.outdent();
-  }
-  
   private String deduceTemplateFile(TreeLogger logger, JClassType interfaceType)
       throws UnableToCompleteException {
     String templateName = null;
