@@ -6,7 +6,7 @@
    <groupId>com.malagasys</groupId>
    <artifactId>htmluibinder</artifactId>
    <packaging>jar</packaging>
-   <version>1.0-SNAPSHOT</version>
+   <version>0.1-SNAPSHOT</version>
    <name>GWT Maven Archetype</name>
    <properties>
       <!-- Convenience property to set the GWT version -->
@@ -115,4 +115,9 @@
       <pluginManagement>
       </pluginManagement>
    </build>
+   <scm>
+      <url>scm:git:git@github.com:RaHery/html-ui-binder.git</url>
+      <connection>scm:git:git@github.com:RaHery/html-ui-binder.git</connection>
+      <developerConnection>scm:git:git@github.com:RaHery/html-ui-binder.git</developerConnection>
+   </scm>
 </project>
