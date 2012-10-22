@@ -7,12 +7,18 @@
    <artifactId>htmluibinder</artifactId>
    <packaging>jar</packaging>
    <version>0.1-SNAPSHOT</version>
-   <name>GWT Maven Archetype</name>
+   <name>UIBinder using HTML template</name>
    <properties>
-      <!-- Convenience property to set the GWT version -->
       <gwtVersion>2.5.0-rc2</gwtVersion>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
+   
+   <scm>
+      <url>scm:git:git@github.com:RaHery/html-ui-binder.git</url>
+      <connection>scm:git:git@github.com:RaHery/html-ui-binder.git</connection>
+      <developerConnection>scm:git:git@github.com:RaHery/html-ui-binder.git</developerConnection>
+   </scm>
+   
    <dependencies>
       <dependency>
          <groupId>com.google.gwt</groupId>
@@ -115,9 +121,4 @@
       <pluginManagement>
       </pluginManagement>
    </build>
-   <scm>
-      <url>scm:git:git@github.com:RaHery/html-ui-binder.git</url>
-      <connection>scm:git:git@github.com:RaHery/html-ui-binder.git</connection>
-      <developerConnection>scm:git:git@github.com:RaHery/html-ui-binder.git</developerConnection>
-   </scm>
 </project>
