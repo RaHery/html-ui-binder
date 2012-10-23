@@ -5,7 +5,7 @@
    <groupId>com.malagasys</groupId>
    <artifactId>htmluibinder</artifactId>
    <packaging>jar</packaging>
-   <version>0.1</version>
+   <version>0.2-SNAPSHOT</version>
    <name>UIBinder using HTML template</name>
    <properties>
       <gwtVersion>2.5.0-rc2</gwtVersion>
