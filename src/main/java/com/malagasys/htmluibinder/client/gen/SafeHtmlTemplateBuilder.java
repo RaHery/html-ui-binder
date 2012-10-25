@@ -18,7 +18,7 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.dev.util.collect.Sets;
 import com.google.gwt.user.rebind.SourceWriter;
 
-class SafeHtmlTemplateGenerator implements PartGenerator {
+class SafeHtmlTemplateBuilder implements PartBuilder {
   private final static Set<String> NO_END_TAG;
   static {
     //from com/google/gxp/compiler/schema/html.xml

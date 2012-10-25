@@ -20,7 +20,6 @@ import com.google.gwt.dev.resource.ResourceOracle;
 import com.google.gwt.dev.util.Util;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.uibinder.rebind.W3cDomHelper;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -56,17 +55,17 @@ public class HtmlUiBinderGenerator extends Generator {
           + context);
       Document htmlDocument = readDocument(logger, context.getResourcesOracle(), requestedType);
       
-      PartGenerator[] generators = new PartGenerator[] {
-          new SafeHtmlTemplateGenerator(),
-          new WidgetFieldsGenerator(),
-          new EventHandlerGenerator(),
-          new CreateAndBindUiGenerator(),
+      PartBuilder[] generators = new PartBuilder[] {
+          new SafeHtmlTemplateBuilder(),
+          new WidgetFieldsBuilder(),
+          new EventHandlerBuilder(),
+          new CreateAndBindUiBuilder(),
       };
       
       //Do generation
       HtmlUiGeneratorContext ctx = new HtmlUiGeneratorContext(htmlDocument, context, 
           requestedType, logger, sourceWriter);
-      for (PartGenerator g : generators) {
+      for (PartBuilder g : generators) {
         g.generate(ctx);
       }
 

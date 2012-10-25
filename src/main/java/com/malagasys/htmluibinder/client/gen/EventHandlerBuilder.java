@@ -20,7 +20,7 @@ import com.malagasys.htmluibinder.client.HtmlUiHandler;
  * 
  * @author hermann
  */
-public class EventHandlerGenerator implements PartGenerator {
+public class EventHandlerBuilder implements PartBuilder {
 
   @Override
   public void generate(HtmlUiGeneratorContext context) throws UnableToCompleteException {

@@ -5,7 +5,7 @@ import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JParameterizedType;
 import com.google.gwt.user.rebind.SourceWriter;
 
-public class CreateAndBindUiGenerator implements PartGenerator {
+public class CreateAndBindUiBuilder implements PartBuilder {
 
   @Override
   public void generate(HtmlUiGeneratorContext context) throws UnableToCompleteException {

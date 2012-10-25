@@ -17,7 +17,7 @@ import com.malagasys.htmluibinder.client.HtmlUiField;
  * 
  * @author hermann
  */
-class WidgetFieldsGenerator implements PartGenerator {
+class WidgetFieldsBuilder implements PartBuilder {
 
   @Override
   public void generate(HtmlUiGeneratorContext ctx) throws UnableToCompleteException {
