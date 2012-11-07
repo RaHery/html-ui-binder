@@ -107,6 +107,7 @@ public class HtmlUiBinderGenerator extends Generator {
         Element.class.getName(),
         DOM.class.getName(),
     };
+    
     for (String imp : imports) {
       composerFactory.addImport(imp);
     }
