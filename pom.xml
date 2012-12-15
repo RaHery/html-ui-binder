@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <!-- POM file generated with GWT webAppCreator -->
    <modelVersion>4.0.0</modelVersion>
    <groupId>com.malagasys</groupId>
@@ -7,17 +8,41 @@
    <packaging>jar</packaging>
    <version>0.2-SNAPSHOT</version>
    <name>UIBinder using HTML template</name>
+   <description>
+   	Simple Library to use plain html as template file to build UI a la Wicket.
+   </description>
+   <url>http://www.malagasys.com/htmluibinder</url>
    <properties>
       <gwtVersion>2.5.0-rc2</gwtVersion>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
-   
+   <licenses>
+      <license>
+         <name>The Apache Software License, Version 2.0</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+
    <scm>
       <url>scm:git:git@github.com:RaHery/html-ui-binder.git</url>
       <connection>scm:git:git@github.com:RaHery/html-ui-binder.git</connection>
       <developerConnection>scm:git:git@github.com:RaHery/html-ui-binder.git</developerConnection>
    </scm>
-   
+
+   <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>3</version>
+   </parent>
+
+   <developers>
+      <developer>
+         <name>Hermann RANGAMANA</name>
+         <email>hermann.rangamana@malagasys.com</email>
+      </developer>
+   </developers>
+
    <dependencies>
       <dependency>
          <groupId>com.google.gwt</groupId>
