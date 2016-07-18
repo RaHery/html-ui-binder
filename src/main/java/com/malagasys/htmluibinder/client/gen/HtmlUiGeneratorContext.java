@@ -49,21 +49,21 @@ class HtmlUiGeneratorContext {
   SourceWriter getSourceWriter() {
     return srcWriter;
   }
-  
+
   void putId(String htmlUiId, String id) {
     ids.put(htmlUiId, id);
   }
-  
+
   String getId(String htmlUiId) {
     return ids.get(htmlUiId);
   }
-  
+
   void addStatement(String statement) {
     statements.add(statement);
   }
-  
+
   void writeAllStatements() {
-    for (String st:statements) {
+    for (String st : statements) {
       srcWriter.println(st);
     }
   }

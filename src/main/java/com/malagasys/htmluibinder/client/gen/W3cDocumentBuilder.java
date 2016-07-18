@@ -19,14 +19,14 @@ import com.google.gwt.dev.resource.ResourceOracle;
 /**
  * Uses SAX events to construct a DOM Document.
  */
-//derived from com/google/gwt/uibinder/rebind/W3cDocumentBuilder
+// derived from com/google/gwt/uibinder/rebind/W3cDocumentBuilder
 class W3cDocumentBuilder extends DefaultHandler2 {
   private final Document document;
   private final Stack<Node> eltStack = new Stack<Node>();
   private final TreeLogger logger;
 
-  public W3cDocumentBuilder(TreeLogger logger, String pathBase,
-      ResourceOracle resourceOracle) throws ParserConfigurationException {
+  public W3cDocumentBuilder(TreeLogger logger, String pathBase, ResourceOracle resourceOracle)
+      throws ParserConfigurationException {
     this.logger = logger;
     document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     eltStack.push(document);
@@ -63,8 +63,8 @@ class W3cDocumentBuilder extends DefaultHandler2 {
   @Override
   public void fatalError(SAXParseException exception) {
     /*
-     * Fatal errors seem to be no scarier than error errors, and simply happen
-     * due to badly formed XML.
+     * Fatal errors seem to be no scarier than error errors, and simply happen due to badly formed
+     * XML.
      */
     logger.log(TreeLogger.ERROR, exception.getMessage());
     logger.log(TreeLogger.DEBUG, "SAXParseException", exception);
@@ -75,8 +75,7 @@ class W3cDocumentBuilder extends DefaultHandler2 {
   }
 
   @Override
-  public void startElement(String uri, String localName, String qName,
-      Attributes attributes) {
+  public void startElement(String uri, String localName, String qName, Attributes attributes) {
     Element elt = document.createElement(qName);
     eltStack.peek().appendChild(elt);
     eltStack.push(elt);

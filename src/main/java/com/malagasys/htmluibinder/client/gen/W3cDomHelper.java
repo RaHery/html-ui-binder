@@ -18,7 +18,7 @@ import javax.xml.parsers.SAXParserFactory;
 /**
  * Simplifies instantiation of the w3c XML parser.
  */
-//derived from com/google/gwt/uibinder/rebind/W3cDomHelper
+// derived from com/google/gwt/uibinder/rebind/W3cDomHelper
 class W3cDomHelper {
   private static final String LOAD_EXTERNAL_DTD =
       "http://apache.org/xml/features/nonvalidating/load-external-dtd";
@@ -38,7 +38,7 @@ class W3cDomHelper {
     } catch (SAXException e) {
       // ignore since parser doesn't know about this feature
     }
-//    factory.setNamespaceAware(true);
+    // factory.setNamespaceAware(true);
   }
 
   /**

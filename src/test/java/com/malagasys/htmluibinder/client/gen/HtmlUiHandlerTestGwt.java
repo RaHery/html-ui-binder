@@ -17,7 +17,8 @@ import com.malagasys.htmluibinder.client.HtmlUiHandler;
 import com.malagasys.htmluibinder.client.HtmlUiTemplate;
 
 /**
- * Test the 
+ * Test the
+ * 
  * @author hermann
  *
  */
@@ -29,6 +30,7 @@ public class HtmlUiHandlerTestGwt extends AbstractBaseTest {
 
   static class MyEvent extends GwtEvent<MyHandler> {
     static final Type<MyHandler> TYPE = new Type<HtmlUiHandlerTestGwt.MyHandler>();
+
     @Override
     public Type<MyHandler> getAssociatedType() {
       return TYPE;
@@ -39,58 +41,59 @@ public class HtmlUiHandlerTestGwt extends AbstractBaseTest {
       handler.onEvent(this);
     }
   }
-  
+
   static class MyWidget extends Widget {
-    
+
     MyWidget() {
       setElement(DOM.createDiv());
     }
-    
+
     HandlerRegistration addMyEventHandler(MyHandler handler) {
       return addHandler(handler, MyEvent.TYPE);
     }
   }
-  
+
   @HtmlUiTemplate("SimplePanel.html")
-  interface Binder extends HtmlUiBinder<Panel> {}
-  
+  interface Binder extends HtmlUiBinder<Panel> {
+  }
+
   static class Panel extends Composite {
     @HtmlUiField
-    Button simpleButton;        
+    Button simpleButton;
     boolean simpleButtonClicked;
 
     @HtmlUiField("button_2")
     MyWidget widget;
     boolean widgetEventFired;
-    
+
     Panel() {
       Binder b = GWT.create(Binder.class);
       initWidget(b.createAndBindHtml(this));
     }
-    
+
     @HtmlUiHandler("simpleButton")
     void simpleButtonEvent(ClickEvent evt) {
       simpleButtonClicked = true;
     }
-    
+
     @HtmlUiHandler("button_2")
     void myEventFired(MyEvent evt) {
       widgetEventFired = true;
     }
   }
-  
+
   public void testGwtEvent() {
     Panel p = new Panel();
-    DomEvent.fireNativeEvent(Document.get().createClickEvent(0, 0, 0, 0, 0,
-        false, false, false, false), p.simpleButton);
+    DomEvent.fireNativeEvent(Document.get().createClickEvent(0, 0, 0, 0, 0, false, false, false,
+        false), p.simpleButton);
 
     assertTrue(p.simpleButtonClicked);
   }
-  
+
   public void testCustomEvent() {
     Panel p = new Panel();
     p.widget.fireEvent(new MyEvent());
-    
+
     assertTrue(p.widgetEventFired);
   }
 }

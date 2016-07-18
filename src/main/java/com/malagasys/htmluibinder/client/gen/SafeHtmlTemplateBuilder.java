@@ -21,23 +21,23 @@ import com.google.gwt.user.rebind.SourceWriter;
 class SafeHtmlTemplateBuilder implements PartBuilder {
   private final static Set<String> NO_END_TAG;
   static {
-    //from com/google/gxp/compiler/schema/html.xml
-    NO_END_TAG = Collections.unmodifiableSet(Sets.create("area", "base",
-        "basefont", "br", "col", "frame", "hr", "img", "input", "isindex", 
-        "link", "meta", "param", "wbr"));
+    // from com/google/gxp/compiler/schema/html.xml
+    NO_END_TAG =
+        Collections.unmodifiableSet(Sets.create("area", "base", "basefont", "br", "col", "frame",
+            "hr", "img", "input", "isindex", "link", "meta", "param", "wbr"));
   }
 
   private final static String HTML_UI_ID_ATTRIBUTEA_NAME = "htmlui:id";
 
   private int id_counter = 100;
-  
+
   @Override
   public void generate(HtmlUiGeneratorContext context) throws UnableToCompleteException {
     StringWriter docWriter = new StringWriter();
-    printNode(context.getTreeLogger(), context.getDocument().getFirstChild(), 
-        new PrintWriter(docWriter), context);
+    printNode(context.getTreeLogger(), context.getDocument().getFirstChild(), new PrintWriter(
+        docWriter), context);
     String templateContent = docWriter.toString();
-    
+
     SourceWriter srcWriter = context.getSourceWriter();
     srcWriter.println("interface Template extends SafeHtmlTemplates{");
     srcWriter.indent();
@@ -48,9 +48,9 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
     srcWriter.outdent();
   }
 
-  private void printNode(TreeLogger logger, Node node, PrintWriter writer, 
+  private void printNode(TreeLogger logger, Node node, PrintWriter writer,
       HtmlUiGeneratorContext context) throws UnableToCompleteException {
-    switch(node.getNodeType()) {
+    switch (node.getNodeType()) {
       case Node.ELEMENT_NODE:
         printElement(logger, (Element) node, writer, context);
         break;
@@ -79,29 +79,29 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
       }
     }
   }
-    
-  private void printElement(TreeLogger logger, Element elem, PrintWriter writer, 
+
+  private void printElement(TreeLogger logger, Element elem, PrintWriter writer,
       HtmlUiGeneratorContext context) throws UnableToCompleteException {
     /*
-     * While printing the content of the element into the writer, create a
-     * new `id' for element having an `htmlui:id' but without id.
+     * While printing the content of the element into the writer, create a new `id' for element
+     * having an `htmlui:id' but without id.
      */
-    //Start tag
+    // Start tag
     String nodeName = elem.getNodeName().toLowerCase();
     writer.printf("<%s", nodeName);
-    
-    //Print attributes
+
+    // Print attributes
     boolean containsHtmlUiId = false;
     boolean containsId = false;
     String htmluiId = null;
     String id = null;
     NamedNodeMap attributes = elem.getAttributes();
-    for(int i = 0; i < attributes.getLength(); ++i) {
+    for (int i = 0; i < attributes.getLength(); ++i) {
       Node attr = attributes.item(i);
       String attrValue = attr.getNodeValue().replace("'", "&#39;");
       writer.printf(" %s='%s'", attr.getNodeName(), attrValue);
-      
-      //Capture htmlui:id attribute
+
+      // Capture htmlui:id attribute
       if (attr.getNodeName().equals(HTML_UI_ID_ATTRIBUTEA_NAME)) {
         if (containsHtmlUiId) {
           logger.log(Type.ERROR, "Duplicate `htmlui:id' found in the tag `" + nodeName + "'");
@@ -110,15 +110,15 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
         containsHtmlUiId = true;
         htmluiId = attrValue;
       }
-      
-      //Capture id attribute
+
+      // Capture id attribute
       if (attr.getNodeName().equals("id")) {
         containsId = true;
         id = attrValue;
       }
     }
-    
-    //If there htmlui:id attribute, add a mapping of htmlui:id ==> id
+
+    // If there htmlui:id attribute, add a mapping of htmlui:id ==> id
     if (containsHtmlUiId) {
       if (!containsId) {
         id = "__html_id__" + id_counter++;
@@ -127,13 +127,13 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
       context.putId(htmluiId, id);
     }
 
-    //Close the tag.
+    // Close the tag.
     writer.print(">");
-    
-    //Print children
+
+    // Print children
     NodeList childNodes = elem.getChildNodes();
     if (childNodes != null) {
-      for(int i = 0; i < childNodes.getLength(); ++i) {
+      for (int i = 0; i < childNodes.getLength(); ++i) {
         printNode(logger, childNodes.item(i), writer, context);
       }
     }

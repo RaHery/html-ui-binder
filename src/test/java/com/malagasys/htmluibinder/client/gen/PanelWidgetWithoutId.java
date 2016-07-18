@@ -8,23 +8,24 @@ import com.malagasys.htmluibinder.client.HtmlUiField;
 import com.malagasys.htmluibinder.client.HtmlUiTemplate;
 
 public class PanelWidgetWithoutId extends AbstractBaseTest {
-  
+
   @HtmlUiTemplate("Panel_WidgetWithoutId.html")
-  interface Binder extends HtmlUiBinder<Panel> {}
-  
+  interface Binder extends HtmlUiBinder<Panel> {
+  }
+
   class Panel extends Composite {
     @HtmlUiField("userlogin")
     TextBox userName;
-    
+
     @HtmlUiField("userpassword")
     TextBox password;
-    
+
     Panel() {
       Binder uiBinder = GWT.create(Binder.class);
       initWidget(uiBinder.createAndBindHtml(this));
     }
   }
-  
+
   public void testInit() {
     Panel p = new Panel();
     assertNotNull(p.password);

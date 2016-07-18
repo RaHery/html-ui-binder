@@ -11,5 +11,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface HtmlUiField {
   String value() default "";
+
   boolean provided() default false;
 }

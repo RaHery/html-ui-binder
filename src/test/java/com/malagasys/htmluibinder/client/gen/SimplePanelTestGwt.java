@@ -1,6 +1,5 @@
 package com.malagasys.htmluibinder.client.gen;
 
-
 public class SimplePanelTestGwt extends AbstractBaseTest {
 
   public void testHappy() {
