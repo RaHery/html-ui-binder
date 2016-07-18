@@ -150,7 +150,7 @@ public class HtmlUiBinderGenerator extends Generator {
       JClassType requestedType) throws UnableToCompleteException {
     String templatePath = deduceTemplateFile(logger, requestedType);
 
-    Resource resource = resourceOracle.getResourceMap().get(templatePath);
+    Resource resource = resourceOracle.getResource(templatePath);
     if (null == resource) {
       logger.log(Type.ERROR, "Unable to find resource: " + templatePath);
       return null;

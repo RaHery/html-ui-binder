@@ -27,7 +27,7 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
             "hr", "img", "input", "isindex", "link", "meta", "param", "wbr"));
   }
 
-  private final static String HTML_UI_ID_ATTRIBUTEA_NAME = "htmlui:id";
+  private final static String HTML_UI_ID_ATTRIBUTE_NAME = "data-fieldid";
 
   private int id_counter = 100;
 
@@ -102,7 +102,7 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
       writer.printf(" %s='%s'", attr.getNodeName(), attrValue);
 
       // Capture htmlui:id attribute
-      if (attr.getNodeName().equals(HTML_UI_ID_ATTRIBUTEA_NAME)) {
+      if (attr.getNodeName().equals(HTML_UI_ID_ATTRIBUTE_NAME)) {
         if (containsHtmlUiId) {
           logger.log(Type.ERROR, "Duplicate `htmlui:id' found in the tag `" + nodeName + "'");
           throw new UnableToCompleteException();
