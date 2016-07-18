@@ -129,12 +129,29 @@ class WidgetFieldsBuilder implements PartBuilder {
     srcWriter.println("if (source.hasAttribute(attrName)) {");
     srcWriter.indent();
     srcWriter.println("String attrValue = source.getAttribute(attrName);");
+    srcWriter.println("if ((attrValue != null) && (!attrValue.trim().isEmpty())) {");
+    srcWriter.indent();
     srcWriter.println("target.setAttribute(attrName, attrValue);");
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();
     srcWriter.println("}");
+    srcWriter.outdent();
+    srcWriter.println("}");
 
+    srcWriter.outdent();
+    srcWriter.println("}");
+
+    // Transfer data-* attributes
+    srcWriter.println("ElementExt e = source.cast();");
+    srcWriter.println("JsArray<ElementExt.Attr> attributes = e.attributes();");
+    srcWriter.println("for (int i = 0; i < attributes.length(); ++i) {");
+    srcWriter.indent();
+    srcWriter.println("if (attributes.get(i).name().startsWith(\"data-\")) {");
+    srcWriter.indent();
+    srcWriter.println("target.setAttribute(attributes.get(i).name(), attributes.get(i).value());");
+    srcWriter.outdent();
+    srcWriter.println("}");
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();

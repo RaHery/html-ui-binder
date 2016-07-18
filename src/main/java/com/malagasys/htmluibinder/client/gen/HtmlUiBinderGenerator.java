@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXParseException;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
@@ -97,7 +98,8 @@ public class HtmlUiBinderGenerator extends Generator {
     // @formatter:off
     String[] imports =
         new String[] {
-            Constants.class.getName(), DOM.class.getName(), Element.class.getName(),
+            JsArray.class.getName(), ElementExt.class.getName(), Constants.class.getName(),
+            DOM.class.getName(), Element.class.getName(),
             GWT.class.getName(), HTMLPanel.class.getName(), HtmlUiBinder.class.getName(),
             SafeHtmlTemplates.class.getName(), SafeHtmlTemplates.class.getName() + ".Template",
             SafeHtml.class.getName(), Widget.class.getName(),};
