@@ -2,8 +2,12 @@ package com.malagasys.htmluibinder.client.gen;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
@@ -33,19 +37,54 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
 
   @Override
   public void generate(HtmlUiGeneratorContext context) throws UnableToCompleteException {
+    // Extract and process the template
     StringWriter docWriter = new StringWriter();
     printNode(context.getTreeLogger(), context.getDocument().getFirstChild(), new PrintWriter(
         docWriter), context);
-    String templateContent = docWriter.toString();
+    String templateContent = extractPropertyNodes(context, docWriter.toString());
 
     SourceWriter srcWriter = context.getSourceWriter();
     srcWriter.println("interface Template extends SafeHtmlTemplates{");
     srcWriter.indent();
     srcWriter.println("@Template(\"" + templateContent + "\")");
-    srcWriter.println("SafeHtml html();");
+
+    // Print the signature of the method to return the html
+    srcWriter.print("SafeHtml html(");
+    for (int i = 0; i < context.countTemplateParameters(); ++i) {
+      srcWriter.print("String " + context.getTemplateParameter(i));
+      if (i < context.countTemplateParameters() - 1) {
+        srcWriter.print(", ");
+      }
+    }
+    srcWriter.println(");");
+
     srcWriter.outdent();
     srcWriter.println("}");
     srcWriter.outdent();
+  }
+
+  private String extractPropertyNodes(HtmlUiGeneratorContext context, String templateContent) {
+    List<String> properties = new ArrayList<String>();
+
+    Pattern p = Pattern.compile("\\{(.*?)\\}");
+    Matcher match = p.matcher(templateContent);
+    while (match.find()) {
+      String g = match.group();
+      if (!properties.contains(g)) {
+        properties.add(g);
+      }
+    }
+
+    // Replace the content in the template placeholder
+    String processedTemplate = templateContent;
+    for (int i = 0; i < properties.size(); ++i) {
+      String propertyName = properties.get(i);
+      processedTemplate = processedTemplate.replace(propertyName, "{" + i + "}");
+      propertyName = propertyName.substring(1, propertyName.length() - 1).replace('.', '_');
+      context.appendTemplateParameter(propertyName);
+    }
+
+    return processedTemplate;
   }
 
   private void printNode(TreeLogger logger, Node node, PrintWriter writer,

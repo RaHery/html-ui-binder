@@ -14,16 +14,19 @@ import com.google.gwt.user.rebind.SourceWriter;
 
 class HtmlUiGeneratorContext {
   private final Document document;
+  private final String resourceClass;
   private final GeneratorContext generatorCtx;
   private final JClassType requestedType;
   private final TreeLogger treeLogger;
   private final SourceWriter srcWriter;
   private final Map<String, String> ids = Maps.newHashMap();
   private final List<String> statements = Lists.newArrayList();
+  private final List<String> templateParameters = Lists.newArrayList();
 
-  HtmlUiGeneratorContext(Document document, GeneratorContext generatorCtx,
+  HtmlUiGeneratorContext(Document document, String resourceClass, GeneratorContext generatorCtx,
       JClassType requestedType, TreeLogger treeLogger, SourceWriter srcWriter) {
     this.document = document;
+    this.resourceClass = resourceClass;
     this.generatorCtx = generatorCtx;
     this.requestedType = requestedType;
     this.treeLogger = treeLogger;
@@ -32,6 +35,10 @@ class HtmlUiGeneratorContext {
 
   Document getDocument() {
     return document;
+  }
+
+  String getResourceClass() {
+    return resourceClass;
   }
 
   GeneratorContext getGeneratorContext() {
@@ -66,5 +73,17 @@ class HtmlUiGeneratorContext {
     for (String st : statements) {
       srcWriter.println(st);
     }
+  }
+
+  void appendTemplateParameter(String p) {
+    templateParameters.add(p);
+  }
+
+  int countTemplateParameters() {
+    return templateParameters.size();
+  }
+
+  String getTemplateParameter(int index) {
+    return templateParameters.get(index);
   }
 }

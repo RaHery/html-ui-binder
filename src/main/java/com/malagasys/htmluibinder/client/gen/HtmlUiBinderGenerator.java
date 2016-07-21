@@ -47,8 +47,11 @@ public class HtmlUiBinderGenerator extends Generator {
       return null;
     }
 
+    // Extract the name of the resource class
+    String resourceClass = extractResourceClass(logger, requestedType);
+
     // Get a writer to the output class.
-    SourceWriter sourceWriter = getSourceWriter(logger, context, requestedType);
+    SourceWriter sourceWriter = getSourceWriter(logger, context, requestedType, resourceClass);
 
     // Source writer is null if the file has already been generated.
     if (sourceWriter != null) {
@@ -61,9 +64,12 @@ public class HtmlUiBinderGenerator extends Generator {
               new SafeHtmlTemplateBuilder(), new WidgetFieldsBuilder(), new EventHandlerBuilder(),
               new CreateAndBindUiBuilder(),};
 
-      // Do generation
+      // Build the context
       HtmlUiGeneratorContext ctx =
-          new HtmlUiGeneratorContext(htmlDocument, context, requestedType, logger, sourceWriter);
+          new HtmlUiGeneratorContext(htmlDocument, resourceClass,
+              context, requestedType, logger, sourceWriter);
+
+      // Generate
       for (PartBuilder g : generators) {
         g.generate(ctx);
       }
@@ -82,7 +88,7 @@ public class HtmlUiBinderGenerator extends Generator {
   }
 
   private SourceWriter getSourceWriter(TreeLogger logger, GeneratorContext ctx,
-      JClassType requestedType) {
+      JClassType requestedType, String resourceClass) {
     JPackage pkg = requestedType.getPackage();
     String packageName = pkg == null ? "" : pkg.getName();
     PrintWriter printWriter =
@@ -99,8 +105,8 @@ public class HtmlUiBinderGenerator extends Generator {
     String[] imports =
         new String[] {
             JsArray.class.getName(), ElementExt.class.getName(), Constants.class.getName(),
-            DOM.class.getName(), Element.class.getName(),
-            GWT.class.getName(), HTMLPanel.class.getName(), HtmlUiBinder.class.getName(),
+            DOM.class.getName(), Element.class.getName(), GWT.class.getName(),
+            HTMLPanel.class.getName(), HtmlUiBinder.class.getName(),
             SafeHtmlTemplates.class.getName(), SafeHtmlTemplates.class.getName() + ".Template",
             SafeHtml.class.getName(), Widget.class.getName(),};
     // @formatter:on
@@ -108,6 +114,10 @@ public class HtmlUiBinderGenerator extends Generator {
     for (String imp : imports) {
       composerFactory.addImport(imp);
     }
+    if (resourceClass != null) {
+      composerFactory.addImport(resourceClass);
+    }
+    
     composerFactory.addImplementedInterface(requestedType.getQualifiedSourceName());
 
     return composerFactory.createSourceWriter(ctx, printWriter);
@@ -125,7 +135,18 @@ public class HtmlUiBinderGenerator extends Generator {
       }
       return slashify(interfaceType.getQualifiedBinaryName()) + TEMPLATE_SUFFIX;
     } else {
-      templateName = annotation.value();
+      templateName = annotation.value().trim();
+
+      // No template name was provided. The user may have added the template annotation for the
+      // resource
+      if (templateName.isEmpty()) {
+        if (interfaceType.getEnclosingType() != null) {
+          interfaceType = interfaceType.getEnclosingType();
+        }
+        return slashify(interfaceType.getQualifiedBinaryName()) + TEMPLATE_SUFFIX;
+      }
+
+      // Ok. At this point we are sure to have a template name provided.
       if (!templateName.endsWith(TEMPLATE_SUFFIX)) {
         logger.log(Type.ERROR, "Template file name must end with " + TEMPLATE_SUFFIX);
       }
@@ -142,6 +163,16 @@ public class HtmlUiBinderGenerator extends Generator {
       }
     }
     return templateName;
+  }
+
+  private String extractResourceClass(TreeLogger logger, JClassType interfaceType) {
+    String resourceFile = null;
+    HtmlUiTemplate annotation = interfaceType.getAnnotation(HtmlUiTemplate.class);
+    if (annotation != null && !annotation.resourceClass().trim().isEmpty()) {
+      resourceFile = annotation.resourceClass().trim();
+      logger.log(Type.INFO, "Resource class used :`" + resourceFile + "'");
+    }
+    return resourceFile;
   }
 
   private static String slashify(String s) {

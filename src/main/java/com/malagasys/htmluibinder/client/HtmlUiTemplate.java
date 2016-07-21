@@ -13,5 +13,19 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface HtmlUiTemplate {
-  String value();
+  /**
+   * The file name containing the html template.
+   *
+   * If the name provided is empty, the default value is the name same name as the target class.
+   * 
+   * @return
+   */
+  String value() default "";
+
+  /**
+   * Resource used to find resource-based string.
+   * 
+   * @return
+   */
+  String resourceClass() default "";
 }

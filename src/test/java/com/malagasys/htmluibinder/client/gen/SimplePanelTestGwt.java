@@ -9,4 +9,12 @@ public class SimplePanelTestGwt extends AbstractBaseTest {
     assertNotNull(p.userLogin);
     assertNotNull(p.userPassword);
   }
+
+  public void testWithResource() {
+    SimplePanelWithResource p = new SimplePanelWithResource();
+    assertNotNull(p.connexionButton);
+    assertNotNull(p.simpleButton);
+    assertNotNull(p.userLogin);
+    assertNotNull(p.userPassword);
+  }
 }
