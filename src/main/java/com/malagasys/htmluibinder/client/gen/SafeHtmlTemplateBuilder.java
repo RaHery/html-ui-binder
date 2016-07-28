@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -46,7 +47,7 @@ class SafeHtmlTemplateBuilder implements PartBuilder {
     SourceWriter srcWriter = context.getSourceWriter();
     srcWriter.println("interface Template extends SafeHtmlTemplates{");
     srcWriter.indent();
-    srcWriter.println("@Template(\"" + templateContent + "\")");
+    srcWriter.println("@Template(\"" + StringEscapeUtils.escapeJava(templateContent) + "\")");
 
     // Print the signature of the method to return the html
     srcWriter.print("SafeHtml html(");
